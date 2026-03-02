@@ -1,4 +1,5 @@
-export const API_BASE_URL = '/api/v1';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
 export const RATE_LIMIT_MAX = 20;
 export const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
