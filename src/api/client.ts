@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { API_BASE_URL } from '@/lib/constants';
-import { getErrorMessage } from '@/lib/errors';
+import axios from "axios";
+import { API_BASE_URL } from "@/lib/constants";
+import { getErrorMessage } from "@/lib/errors";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 api.interceptors.response.use(
@@ -14,9 +14,9 @@ api.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
-      const isAuthRoute = error.config?.url?.startsWith('/auth/');
+      const isAuthRoute = error.config?.url?.startsWith("/auth/");
       if (!isAuthRoute) {
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     }
 
