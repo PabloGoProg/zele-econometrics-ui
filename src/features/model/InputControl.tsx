@@ -1,8 +1,14 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Info, Settings2 } from 'lucide-react';
 import { Slider } from '@/components/ui/Slider';
 import { Tooltip } from '@/components/ui/Tooltip';
 import type { VariableSchema } from '@/types';
+import {
+  displayValueForInput,
+  formatVariableValue,
+  parseValueFromInput,
+  valueTypeLabel,
+} from '@/lib/modelFormatting';
 
 interface InputControlProps {
   variable: VariableSchema;
@@ -23,60 +29,60 @@ export function InputControl({
   onLimitsChange,
   onBeforeChange,
 }: InputControlProps) {
-  const [inputText, setInputText] = useState(String(value));
+  const [inputText, setInputText] = useState(displayValueForInput(value, variable));
+  const [editingValue, setEditingValue] = useState(false);
   const [rangeError, setRangeError] = useState('');
   const [editingLimits, setEditingLimits] = useState(false);
-  const [tempMin, setTempMin] = useState(String(customMin));
-  const [tempMax, setTempMax] = useState(String(customMax));
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const isExternalUpdate = useRef(false);
-
-  useEffect(() => {
-    isExternalUpdate.current = true;
-    setInputText(String(value));
-    setRangeError('');
-  }, [value]);
+  const [tempMin, setTempMin] = useState(displayValueForInput(customMin, variable));
+  const [tempMax, setTempMax] = useState(displayValueForInput(customMax, variable));
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const visibleInputText = editingValue ? inputText : displayValueForInput(value, variable);
 
   const handleSliderChange = useCallback(
     (newVal: number) => {
       onBeforeChange();
-      setInputText(String(newVal));
+      setInputText(displayValueForInput(newVal, variable));
+      setEditingValue(false);
       setRangeError('');
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         onValueChange(newVal);
       }, 150);
     },
-    [onValueChange, onBeforeChange],
+    [onValueChange, onBeforeChange, variable],
   );
 
   const handleInputBlur = useCallback(() => {
-    const parsed = parseFloat(inputText);
-    if (isNaN(parsed)) {
-      setInputText(String(value));
+    const parsed = parseValueFromInput(visibleInputText, variable);
+    setEditingValue(false);
+    if (parsed === null) {
+      setInputText(displayValueForInput(value, variable));
       setRangeError('');
       return;
     }
     if (parsed < customMin || parsed > customMax) {
-      setRangeError(`Fuera de rango (${customMin} – ${customMax})`);
-      setInputText(String(value));
+      setRangeError(
+        `Fuera de rango (${formatVariableValue(customMin, variable)} - ${formatVariableValue(customMax, variable)})`,
+      );
+      setInputText(displayValueForInput(value, variable));
       return;
     }
     if (parsed !== value) {
       onBeforeChange();
       onValueChange(parsed);
     }
+    setInputText(displayValueForInput(parsed, variable));
     setRangeError('');
-  }, [inputText, value, customMin, customMax, onValueChange, onBeforeChange]);
+  }, [visibleInputText, value, variable, customMin, customMax, onValueChange, onBeforeChange]);
 
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleInputBlur();
   };
 
   const handleSaveLimits = () => {
-    const newMin = parseFloat(tempMin);
-    const newMax = parseFloat(tempMax);
-    if (isNaN(newMin) || isNaN(newMax) || newMin >= newMax) return;
+    const newMin = parseValueFromInput(tempMin, variable);
+    const newMax = parseValueFromInput(tempMax, variable);
+    if (newMin === null || newMax === null || newMin >= newMax) return;
     if (value < newMin || value > newMax) return;
     onBeforeChange();
     onLimitsChange({ min: newMin, max: newMax });
@@ -84,9 +90,9 @@ export function InputControl({
   };
 
   const limitsValid = (() => {
-    const newMin = parseFloat(tempMin);
-    const newMax = parseFloat(tempMax);
-    if (isNaN(newMin) || isNaN(newMax)) return false;
+    const newMin = parseValueFromInput(tempMin, variable);
+    const newMax = parseValueFromInput(tempMax, variable);
+    if (newMin === null || newMax === null) return false;
     if (newMin >= newMax) return false;
     if (value < newMin || value > newMax) return false;
     return true;
@@ -100,7 +106,7 @@ export function InputControl({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <label className="text-sm font-medium text-slate-700">
-            {variable.name}
+            {variable.display_name || variable.name}
           </label>
           <Tooltip content={`${variable.meaning}\n\n${variable.description}`}>
             <button className="text-slate-400 hover:text-slate-500">
@@ -113,10 +119,13 @@ export function InputControl({
             </span>
           )}
         </div>
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+          {valueTypeLabel(variable)}
+        </span>
         <button
           onClick={() => {
-            setTempMin(String(customMin));
-            setTempMax(String(customMax));
+            setTempMin(displayValueForInput(customMin, variable));
+            setTempMax(displayValueForInput(customMax, variable));
             setEditingLimits(!editingLimits);
           }}
           className="rounded p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
@@ -138,10 +147,15 @@ export function InputControl({
         </div>
         <input
           type="text"
-          value={inputText}
+          value={visibleInputText}
           onChange={(e) => {
-            isExternalUpdate.current = false;
+            setEditingValue(true);
             setInputText(e.target.value);
+            setRangeError('');
+          }}
+          onFocus={() => {
+            setEditingValue(true);
+            setInputText(displayValueForInput(value, variable));
             setRangeError('');
           }}
           onBlur={handleInputBlur}
@@ -151,8 +165,9 @@ export function InputControl({
       </div>
 
       <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
-        <span>Mín: {customMin}</span>
-        <span>Máx: {customMax}</span>
+        <span>Mín: {formatVariableValue(customMin, variable)}</span>
+        <span>Actual: {formatVariableValue(value, variable)}</span>
+        <span>Máx: {formatVariableValue(customMax, variable)}</span>
       </div>
 
       {rangeError && (
@@ -164,7 +179,7 @@ export function InputControl({
           <div className="flex-1">
             <label className="text-[11px] font-medium text-slate-500">Nuevo mín</label>
             <input
-              type="number"
+              type="text"
               value={tempMin}
               onChange={(e) => setTempMin(e.target.value)}
               className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/20"
@@ -173,7 +188,7 @@ export function InputControl({
           <div className="flex-1">
             <label className="text-[11px] font-medium text-slate-500">Nuevo máx</label>
             <input
-              type="number"
+              type="text"
               value={tempMax}
               onChange={(e) => setTempMax(e.target.value)}
               className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/20"
@@ -190,7 +205,7 @@ export function InputControl({
       )}
       {editingLimits && !limitsValid && (
         <p className="mt-1 text-xs text-red-500">
-          Mín debe ser menor que Máx, y el valor actual ({value}) debe estar dentro del nuevo rango.
+          Mín debe ser menor que Máx, y el valor actual ({formatVariableValue(value, variable)}) debe estar dentro del nuevo rango.
         </p>
       )}
     </div>

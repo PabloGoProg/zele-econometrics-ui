@@ -8,6 +8,7 @@ import { ResultsPanel } from './ResultsPanel';
 import { PredictionHistory } from './PredictionHistory';
 import { Button } from '@/components/ui/Button';
 import { TooltipProvider } from '@/components/ui/Tooltip';
+import { formatPredictionValue } from '@/lib/modelFormatting';
 
 interface ModelPanelProps {
   modelId: number;
@@ -41,6 +42,11 @@ export function ModelPanel({ modelId }: ModelPanelProps) {
     const l: Record<string, { min: number; max: number }> = {};
     for (const v of schema.variables) l[v.name] = { min: v.min, max: v.max };
     return l;
+  }, [schema]);
+
+  const variablesByName = useMemo(() => {
+    if (!schema) return {};
+    return Object.fromEntries(schema.variables.map((v) => [v.name, v]));
   }, [schema]);
 
   useEffect(() => {
@@ -81,15 +87,23 @@ export function ModelPanel({ modelId }: ModelPanelProps) {
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header del modelo */}
         <div>
-          <h2 className="text-lg font-semibold text-primary-900">
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+            {schema.name}
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-primary-900">
             {schema.display_name}
           </h2>
-          <p className="mt-1 text-sm text-slate-500">{schema.description}</p>
-          <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
-            <span>Variable objetivo: <strong className="text-slate-600">{schema.target_variable}</strong></span>
-            <span>R²: <strong className="text-slate-600">{schema.r_squared}</strong></span>
-            <span>Versión: {schema.version}</span>
-            <span>Entrenado: {schema.trained_at}</span>
+          <p className="mt-2 max-w-4xl text-sm leading-relaxed text-slate-600">{schema.description}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="rounded-full bg-primary-50 px-2.5 py-1 text-primary-700">
+              Objetivo: <strong>{schema.target_variable}</strong>
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1">
+              Resultado en pantalla: <strong>{formatPredictionValue(0.03, schema.target_variable)} aprox.</strong>
+            </span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1">R²: <strong>{schema.r_squared}</strong></span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1">Versión: {schema.version}</span>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1">Entrenado: {schema.trained_at}</span>
           </div>
         </div>
 
@@ -147,8 +161,9 @@ export function ModelPanel({ modelId }: ModelPanelProps) {
             <ResultsPanel
               prediction={tabState.lastPrediction}
               isStale={tabState.predictionStale}
+              variablesByName={variablesByName}
             />
-            <PredictionHistory history={tabState.history} />
+            <PredictionHistory history={tabState.history} variablesByName={variablesByName} />
           </div>
         </div>
       </div>

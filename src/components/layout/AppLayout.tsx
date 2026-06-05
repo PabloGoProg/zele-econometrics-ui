@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { TabBar } from './TabBar';
 import { HomePage } from '@/features/home/HomePage';
+import { ModelConsolePanel } from '@/features/model/ModelConsolePanel';
 import { ModelPanel } from '@/features/model/ModelPanel';
 import { useWorkspaceStore } from '@/stores/workspaceStore';
 import { useModels } from '@/hooks/useModels';
-import type { Model } from '@/types';
 
 export function AppLayout() {
   const { tabs, activeTabId, openModel, removeInvalidTabs } = useWorkspaceStore();
@@ -16,17 +16,16 @@ export function AppLayout() {
     const validIds = models.map((m) => m.id);
     const removed = removeInvalidTabs(validIds);
     if (removed.length > 0) {
-      setRemovedNotice(removed);
+      const noticeTimer = setTimeout(() => setRemovedNotice(removed), 0);
       const timer = setTimeout(() => setRemovedNotice([]), 5000);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(noticeTimer);
+        clearTimeout(timer);
+      };
     }
   }, [models, removeInvalidTabs]);
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
-
-  const handleOpenModel = (model: Model) => {
-    openModel(model);
-  };
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -41,7 +40,9 @@ export function AppLayout() {
 
       <div className="flex-1 overflow-auto p-6">
         {activeTabId === 'home' ? (
-          <HomePage onOpenModel={handleOpenModel} />
+          <HomePage onOpenModel={openModel} />
+        ) : activeTabId === 'model-console' ? (
+          <ModelConsolePanel />
         ) : activeTab?.modelId ? (
           <ModelPanel modelId={activeTab.modelId} />
         ) : null}

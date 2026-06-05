@@ -1,13 +1,15 @@
 import { TrendingUp, Info } from 'lucide-react';
-import type { PredictionResponse } from '@/types';
+import type { PredictionResponse, VariableSchema } from '@/types';
 import { ContributionsChart } from './ContributionsChart';
+import { formatPredictionValue } from '@/lib/modelFormatting';
 
 interface ResultsPanelProps {
   prediction: PredictionResponse | null;
   isStale: boolean;
+  variablesByName: Record<string, VariableSchema>;
 }
 
-export function ResultsPanel({ prediction, isStale }: ResultsPanelProps) {
+export function ResultsPanel({ prediction, isStale, variablesByName }: ResultsPanelProps) {
   if (!prediction) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
@@ -36,10 +38,10 @@ export function ResultsPanel({ prediction, isStale }: ResultsPanelProps) {
         )}
 
         <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
-          Predicción
+          Predicción aproximada
         </p>
         <p className="mt-1 text-3xl font-bold tabular-nums text-primary-800">
-          {prediction.prediction.toFixed(6)}
+          {formatPredictionValue(prediction.prediction, prediction.variable)}
         </p>
         <p className="mt-1 text-sm text-slate-500">{prediction.variable}</p>
 
@@ -69,7 +71,11 @@ export function ResultsPanel({ prediction, isStale }: ResultsPanelProps) {
 
       {prediction.contributions &&
         Object.keys(prediction.contributions).length > 0 && (
-          <ContributionsChart contributions={prediction.contributions} />
+          <ContributionsChart
+            contributions={prediction.contributions}
+            targetVariable={prediction.variable}
+            variablesByName={variablesByName}
+          />
         )}
     </div>
   );

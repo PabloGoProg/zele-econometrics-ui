@@ -26,7 +26,7 @@ export default function LoginPage() {
     setApiError('');
     setIsSubmitting(true);
     try {
-      await login({ email: data.email, password: data.password });
+      await login(data.email, data.password);
       navigate('/app', { replace: true });
     } catch (err) {
       setApiError(extractApiError(err));

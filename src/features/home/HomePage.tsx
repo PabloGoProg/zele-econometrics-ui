@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Search, AlertCircle, Inbox } from 'lucide-react';
+import { Search, AlertCircle, Inbox, Boxes, ArrowRight } from 'lucide-react';
 import { useModels } from '@/hooks/useModels';
 import { ModelCard } from './ModelCard';
 import { SEARCH_THRESHOLD } from '@/lib/constants';
 import type { Model } from '@/types';
 import { Button } from '@/components/ui/Button';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 interface HomePageProps {
   onOpenModel: (model: Model) => void;
@@ -12,6 +13,7 @@ interface HomePageProps {
 
 export function HomePage({ onOpenModel }: HomePageProps) {
   const { data: models, isLoading, isError, refetch } = useModels();
+  const openModelConsole = useWorkspaceStore((s) => s.openModelConsole);
   const [search, setSearch] = useState('');
 
   const showSearch = (models?.length ?? 0) > SEARCH_THRESHOLD;
@@ -78,6 +80,30 @@ export function HomePage({ onOpenModel }: HomePageProps) {
           </div>
         )}
       </div>
+
+      <button
+        onClick={openModelConsole}
+        className="group flex w-full flex-col gap-4 rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-900 to-primary-700 p-5 text-left text-white shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div className="flex gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15">
+            <Boxes className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary-100">
+              Opción principal
+            </p>
+            <h3 className="mt-1 text-xl font-semibold">Consola de Modelos</h3>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-primary-50/90">
+              Ejecuta los tres modelos en una sola vista. Primero predice crecimiento económico y usa ese resultado como insumo automático para desempleo y tejido empresarial.
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-primary-800 transition-colors group-hover:bg-primary-50">
+          Abrir consola
+          <ArrowRight className="h-4 w-4" />
+        </span>
+      </button>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((model) => (
