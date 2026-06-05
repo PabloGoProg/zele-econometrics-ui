@@ -33,8 +33,8 @@ export function ContributionsChart({ contributions, targetVariable, variablesByN
   if (data.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h4 className="text-sm font-semibold text-slate-700">
+    <div className="rounded-3xl border border-white/80 bg-white/90 p-5 shadow-sm shadow-slate-900/5">
+      <h4 className="text-sm font-bold text-slate-800">
         Contribución por variable
       </h4>
       <p className="mb-4 text-[11px] text-slate-400">
@@ -61,9 +61,10 @@ export function ContributionsChart({ contributions, targetVariable, variablesByN
           />
           <RechartsTooltip
             contentStyle={{
-              borderRadius: '8px',
+              borderRadius: '14px',
               border: '1px solid #e2e8f0',
               fontSize: '12px',
+              boxShadow: '0 12px 30px rgba(15, 23, 42, 0.10)',
             }}
             formatter={(value) => [
               formatPredictionValue(Number(value ?? 0), targetVariable),

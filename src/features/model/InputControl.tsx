@@ -102,10 +102,10 @@ export function InputControl({
     value < variable.min || value > variable.max;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-white/80 bg-white/90 p-4 shadow-sm shadow-slate-900/5 transition-all hover:border-primary-100 hover:shadow-md hover:shadow-primary-900/5">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <label className="text-sm font-medium text-slate-700">
+          <label className="text-sm font-semibold text-slate-800">
             {variable.display_name || variable.name}
           </label>
           <Tooltip content={`${variable.meaning}\n\n${variable.description}`}>
@@ -114,12 +114,12 @@ export function InputControl({
             </button>
           </Tooltip>
           {warnOutOfRecommended && (
-            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
               Fuera del rango recomendado
             </span>
           )}
         </div>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
           {valueTypeLabel(variable)}
         </span>
         <button
@@ -128,7 +128,7 @@ export function InputControl({
             setTempMax(displayValueForInput(customMax, variable));
             setEditingLimits(!editingLimits);
           }}
-          className="rounded p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
           title="Editar rango"
         >
           <Settings2 className="h-3.5 w-3.5" />
@@ -160,7 +160,7 @@ export function InputControl({
           }}
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
-          className="w-24 rounded-md border border-slate-300 px-2 py-1 text-right text-sm tabular-nums text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-24 rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-right text-sm tabular-nums text-slate-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10"
         />
       </div>
 
@@ -175,14 +175,14 @@ export function InputControl({
       )}
 
       {editingLimits && (
-        <div className="mt-3 flex items-end gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+        <div className="mt-3 flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
           <div className="flex-1">
             <label className="text-[11px] font-medium text-slate-500">Nuevo mín</label>
             <input
               type="text"
               value={tempMin}
               onChange={(e) => setTempMin(e.target.value)}
-              className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/20"
+                className="mt-0.5 w-full rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/10"
             />
           </div>
           <div className="flex-1">
@@ -191,13 +191,13 @@ export function InputControl({
               type="text"
               value={tempMax}
               onChange={(e) => setTempMax(e.target.value)}
-              className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/20"
+                className="mt-0.5 w-full rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/10"
             />
           </div>
           <button
             onClick={handleSaveLimits}
             disabled={!limitsValid}
-            className="rounded-md bg-primary-700 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-primary-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="rounded-lg bg-primary-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Aplicar
           </button>

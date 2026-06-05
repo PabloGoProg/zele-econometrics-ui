@@ -38,7 +38,7 @@ export function AppLayout() {
         </div>
       )}
 
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto px-4 py-5 md:px-6 lg:px-8">
         {activeTabId === 'home' ? (
           <HomePage onOpenModel={openModel} />
         ) : activeTabId === 'model-console' ? (

@@ -12,9 +12,11 @@ export function PredictionHistory({ history, variablesByName }: PredictionHistor
   if (history.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-3xl border border-white/80 bg-white/90 p-5 shadow-sm shadow-slate-900/5">
       <div className="flex items-center gap-2">
-        <Clock className="h-4 w-4 text-slate-400" />
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+          <Clock className="h-4 w-4" />
+        </span>
         <h4 className="text-sm font-semibold text-slate-700">
           Historial ({history.length})
         </h4>
@@ -47,7 +49,7 @@ function HistoryItem({
   });
 
   return (
-    <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+    <div className="rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-2 transition-colors hover:bg-white">
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between text-left"
@@ -58,7 +60,7 @@ function HistoryItem({
           ) : (
             <ChevronRight className="h-3 w-3 text-slate-400" />
           )}
-          <span className="text-sm font-semibold tabular-nums text-primary-800">
+          <span className="text-sm font-bold tabular-nums text-primary-900">
             {formatPredictionValue(entry.result.prediction, entry.result.variable)}
           </span>
         </div>

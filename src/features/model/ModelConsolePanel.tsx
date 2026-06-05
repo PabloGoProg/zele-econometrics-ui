@@ -174,16 +174,17 @@ export function ModelConsolePanel() {
   return (
     <TooltipProvider>
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="rounded-2xl border border-primary-100 bg-white p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-3xl border border-primary-200 bg-gradient-to-br from-white via-primary-50/60 to-white p-5 shadow-sm shadow-slate-900/5 md:p-6">
+          <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary-200/40 blur-3xl" />
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-700 text-white shadow-sm shadow-primary-900/20">
               <Boxes className="h-6 w-6" />
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-600">
                 Flujo integrado
               </p>
-              <h2 className="mt-1 text-2xl font-semibold text-primary-900">Consola de Modelos</h2>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary-950 md:text-3xl">Consola de Modelos</h2>
               <p className="mt-2 max-w-4xl text-sm leading-relaxed text-slate-600">
                 Ejecuta primero el modelo A. Su predicción de crecimiento del PIB habilita los modelos B y C, que pueden ejecutarse en cualquier orden usando ese valor como insumo automático.
               </p>
@@ -202,10 +203,10 @@ export function ModelConsolePanel() {
             return (
               <section
                 key={item.key}
-                className={`rounded-2xl border p-5 shadow-sm transition-colors ${
+                className={`rounded-3xl border p-5 shadow-sm shadow-slate-900/5 transition-all ${
                   enabled
-                    ? 'border-slate-200 bg-white'
-                    : 'border-slate-300 bg-slate-200 text-slate-500'
+                    ? 'border-white/80 bg-white/90 hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-900/10'
+                    : 'border-slate-300 bg-slate-200/80 text-slate-500'
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -213,7 +214,7 @@ export function ModelConsolePanel() {
                     <div className="flex items-center gap-2">
                       <span
                         className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                          enabled ? 'bg-primary-700 text-white' : 'bg-slate-500 text-slate-100'
+                          enabled ? 'bg-primary-700 text-white shadow-sm shadow-primary-900/20' : 'bg-slate-500 text-slate-100'
                         }`}
                       >
                         {item.letter}
@@ -222,7 +223,7 @@ export function ModelConsolePanel() {
                         {schema.name}
                       </span>
                     </div>
-                    <h3 className={`mt-3 text-base font-semibold ${enabled ? 'text-primary-900' : 'text-slate-600'}`}>
+                    <h3 className={`mt-3 text-base font-bold ${enabled ? 'text-primary-950' : 'text-slate-600'}`}>
                       {schema.display_name}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.helper}</p>
@@ -276,7 +277,7 @@ export function ModelConsolePanel() {
                   </Button>
 
                   {result && (
-                    <div className="rounded-lg border border-primary-100 bg-primary-50 px-3 py-2">
+                    <div className="rounded-2xl border border-primary-100 bg-primary-50 px-3 py-2">
                       <p className="text-[11px] font-semibold uppercase tracking-wider text-primary-500">
                         Resultado
                       </p>
@@ -288,7 +289,7 @@ export function ModelConsolePanel() {
                   )}
 
                   {errors[item.key] && (
-                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    <p className="rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                       {errors[item.key]}
                     </p>
                   )}
@@ -309,7 +310,7 @@ export function ModelConsolePanel() {
           </p>
         )}
 
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <section className="rounded-3xl border border-white/80 bg-white/75 p-5 shadow-sm shadow-slate-900/5 backdrop-blur">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary-700" />
             <h3 className="text-lg font-semibold text-primary-900">Resumen de predicción</h3>
@@ -321,7 +322,7 @@ export function ModelConsolePanel() {
               if (!schema) return null;
 
               return (
-                <div key={item.key} className="rounded-xl border border-slate-200 bg-white p-4">
+                <div key={item.key} className="rounded-2xl border border-slate-200 bg-white/90 p-4">
                   <h4 className="text-sm font-semibold text-slate-700">
                     Modelo {item.letter}: {schema.display_name}
                   </h4>
@@ -334,7 +335,7 @@ export function ModelConsolePanel() {
                       />
                     </div>
                   ) : (
-                    <div className="mt-3 rounded-lg border border-dashed border-slate-300 bg-slate-100 p-6 text-center text-sm text-slate-500">
+                    <div className="mt-3 rounded-2xl border border-dashed border-slate-300 bg-slate-100 p-6 text-center text-sm text-slate-500">
                       Pendiente de predicción
                     </div>
                   )}
@@ -382,7 +383,7 @@ function DerivedOrDisabledVariable({
   waitingForA: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-slate-300 bg-slate-100 p-4">
+    <div className="rounded-2xl border border-slate-300 bg-slate-100 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-slate-700">{variable.display_name || variable.name}</p>
