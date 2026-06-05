@@ -10,23 +10,31 @@ import {
   Cell,
   ReferenceLine,
 } from 'recharts';
+import type { VariableSchema } from '@/types';
+import { formatPredictionValue, variableLabel } from '@/lib/modelFormatting';
 
 interface ContributionsChartProps {
   contributions: Record<string, number>;
+  targetVariable: string;
+  variablesByName: Record<string, VariableSchema>;
 }
 
-export function ContributionsChart({ contributions }: ContributionsChartProps) {
+export function ContributionsChart({ contributions, targetVariable, variablesByName }: ContributionsChartProps) {
   const data = useMemo(() => {
     return Object.entries(contributions)
-      .map(([name, value]) => ({ name, value }))
+      .map(([name, value]) => ({
+        name,
+        label: variableLabel(name, variablesByName),
+        value,
+      }))
       .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-  }, [contributions]);
+  }, [contributions, variablesByName]);
 
   if (data.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h4 className="text-sm font-semibold text-slate-700">
+    <div className="rounded-3xl border border-white/80 bg-white/90 p-5 shadow-sm shadow-slate-900/5">
+      <h4 className="text-sm font-bold text-slate-800">
         Contribución por variable
       </h4>
       <p className="mb-4 text-[11px] text-slate-400">
@@ -40,20 +48,28 @@ export function ContributionsChart({ contributions }: ContributionsChartProps) {
           margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-          <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+          <XAxis
+            type="number"
+            tick={{ fontSize: 11, fill: '#94a3b8' }}
+            tickFormatter={(value) => formatPredictionValue(Number(value), targetVariable)}
+          />
           <YAxis
             type="category"
-            dataKey="name"
+            dataKey="label"
             tick={{ fontSize: 11, fill: '#64748b' }}
-            width={100}
+            width={150}
           />
           <RechartsTooltip
             contentStyle={{
-              borderRadius: '8px',
+              borderRadius: '14px',
               border: '1px solid #e2e8f0',
               fontSize: '12px',
+              boxShadow: '0 12px 30px rgba(15, 23, 42, 0.10)',
             }}
-            formatter={(value: number) => [value.toFixed(6), 'Contribución']}
+            formatter={(value) => [
+              formatPredictionValue(Number(value ?? 0), targetVariable),
+              'Contribución',
+            ]}
           />
           <ReferenceLine x={0} stroke="#94a3b8" strokeDasharray="3 3" />
           <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>

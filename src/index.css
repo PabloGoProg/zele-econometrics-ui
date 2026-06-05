@@ -19,6 +19,15 @@
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
   font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at top left, rgba(29, 78, 216, 0.10), transparent 34rem),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+button,
+a,
+input {
+  @apply transition-colors;
 }
 
 *:focus-visible {

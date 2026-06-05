@@ -4,7 +4,7 @@ import { RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from '@/lib/constants';
 export function useRateLimit() {
   const [timestamps, setTimestamps] = useState<number[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const cleanup = useCallback(() => {
     const now = Date.now();
@@ -41,7 +41,7 @@ export function useRateLimit() {
       return Math.ceil((oldest + RATE_LIMIT_WINDOW_MS - Date.now()) / 1000);
     };
 
-    setSecondsLeft(calcSeconds());
+    const initialTimer = setTimeout(() => setSecondsLeft(calcSeconds()), 0);
 
     intervalRef.current = setInterval(() => {
       setSecondsLeft((s) => {
@@ -57,6 +57,7 @@ export function useRateLimit() {
     }, 1000);
 
     return () => {
+      clearTimeout(initialTimer);
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isLimited, cleanup, secondsLeft]);

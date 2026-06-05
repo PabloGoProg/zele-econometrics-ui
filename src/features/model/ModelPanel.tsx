@@ -8,6 +8,7 @@ import { ResultsPanel } from './ResultsPanel';
 import { PredictionHistory } from './PredictionHistory';
 import { Button } from '@/components/ui/Button';
 import { TooltipProvider } from '@/components/ui/Tooltip';
+import { formatPredictionValue } from '@/lib/modelFormatting';
 
 interface ModelPanelProps {
   modelId: number;
@@ -41,6 +42,11 @@ export function ModelPanel({ modelId }: ModelPanelProps) {
     const l: Record<string, { min: number; max: number }> = {};
     for (const v of schema.variables) l[v.name] = { min: v.min, max: v.max };
     return l;
+  }, [schema]);
+
+  const variablesByName = useMemo(() => {
+    if (!schema) return {};
+    return Object.fromEntries(schema.variables.map((v) => [v.name, v]));
   }, [schema]);
 
   useEffect(() => {
@@ -78,26 +84,37 @@ export function ModelPanel({ modelId }: ModelPanelProps) {
 
   return (
     <TooltipProvider>
-      <div className="mx-auto max-w-6xl space-y-6">
-        {/* Header del modelo */}
-        <div>
-          <h2 className="text-lg font-semibold text-primary-900">
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Model header */}
+        <div className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-sm shadow-slate-900/5 backdrop-blur md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-600">
+            {schema.name}
+          </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary-950 md:text-3xl">
             {schema.display_name}
           </h2>
-          <p className="mt-1 text-sm text-slate-500">{schema.description}</p>
-          <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
-            <span>Variable objetivo: <strong className="text-slate-600">{schema.target_variable}</strong></span>
-            <span>R²: <strong className="text-slate-600">{schema.r_squared}</strong></span>
-            <span>Versión: {schema.version}</span>
-            <span>Entrenado: {schema.trained_at}</span>
+          <p className="mt-3 max-w-4xl text-sm leading-relaxed text-slate-600">{schema.description}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-primary-700">
+              Objetivo: <strong>{schema.target_variable}</strong>
+            </span>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5">
+              Resultado en pantalla: <strong>{formatPredictionValue(0.03, schema.target_variable)} aprox.</strong>
+            </span>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5">R²: <strong>{schema.r_squared}</strong></span>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5">Versión: {schema.version}</span>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5">Entrenado: {schema.trained_at}</span>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-          {/* Panel de inputs */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+          {/* Input panel */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-700">Variables de entrada</h3>
+            <div className="flex flex-col gap-3 rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm shadow-slate-900/5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Variables de entrada</h3>
+                <p className="mt-1 text-xs text-slate-500">Ajusta valores, rangos y ejecuta una predicción.</p>
+              </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
@@ -142,13 +159,14 @@ export function ModelPanel({ modelId }: ModelPanelProps) {
             </div>
           </div>
 
-          {/* Panel de resultados */}
-          <div className="space-y-4">
+          {/* Results panel */}
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <ResultsPanel
               prediction={tabState.lastPrediction}
               isStale={tabState.predictionStale}
+              variablesByName={variablesByName}
             />
-            <PredictionHistory history={tabState.history} />
+            <PredictionHistory history={tabState.history} variablesByName={variablesByName} />
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ import type {
 import { MAX_UNDO_SNAPSHOTS, MAX_HISTORY_PER_MODEL } from '@/lib/constants';
 
 interface Tab {
-  id: string; // "home" | "model-{modelId}"
+  id: string; // "home" | "model-console" | "model-{modelId}"
   modelId: number | null;
   modelName: string;
   displayName: string;
@@ -22,6 +22,7 @@ interface WorkspaceState {
   tabStates: Record<string, TabState>;
 
   openModel: (model: Model) => void;
+  openModelConsole: () => void;
   closeTab: (tabId: string) => void;
   setActiveTab: (tabId: string) => void;
 
@@ -57,6 +58,13 @@ const HOME_TAB: Tab = {
   displayName: 'Home',
 };
 
+const MODEL_CONSOLE_TAB: Tab = {
+  id: 'model-console',
+  modelId: null,
+  modelName: 'model-console',
+  displayName: 'Consola de Modelos',
+};
+
 function tabIdForModel(modelId: number) {
   return `model-${modelId}`;
 }
@@ -85,6 +93,19 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         set({
           tabs: [...state.tabs, newTab],
           activeTabId: tabId,
+        });
+      },
+
+      openModelConsole: () => {
+        const state = get();
+        const exists = state.tabs.some((t) => t.id === MODEL_CONSOLE_TAB.id);
+        if (exists) {
+          set({ activeTabId: MODEL_CONSOLE_TAB.id });
+          return;
+        }
+        set({
+          tabs: [...state.tabs, MODEL_CONSOLE_TAB],
+          activeTabId: MODEL_CONSOLE_TAB.id,
         });
       },
 
