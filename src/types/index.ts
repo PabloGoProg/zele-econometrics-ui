@@ -13,8 +13,10 @@ export interface Model {
 
 export interface VariableSchema {
   name: string;
+  display_name: string;
   description: string;
   meaning: string;
+  value_type: 'log_change_rate' | 'percentage' | 'normalized_index' | string;
   default_value: number;
   min: number;
   max: number;

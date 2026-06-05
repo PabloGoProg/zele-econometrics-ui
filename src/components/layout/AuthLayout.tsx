@@ -3,9 +3,9 @@ import { Header } from './Header';
 
 export function AuthLayout() {
   return (
-    <div className="flex h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex flex-1 overflow-hidden">
+      <main className="flex flex-1 overflow-auto">
         <Outlet />
       </main>
     </div>
